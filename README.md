@@ -1,4 +1,4 @@
-# vue-12factor 
+# vue-12factor [![](https://images.microbadger.com/badges/image/tinou98/vue-12factor.svg)](https://microbadger.com/images/tinou98/vue-12factor "Get your own image badge on microbadger.com")
 ## A container that helps to resolve the run-time configuration for a pre-built Web application.
 
 As specified by [12 factor application](https://12factor.net/config), a strict separation of config and code is required.
