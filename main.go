@@ -77,7 +77,16 @@ func AutoInjection(files ...string) {
 func InjectEnv(fileName string) error {
 	env := readEnv()
 
-	t, err := template.ParseFiles(fileName)
+	t := template.New(fileName)
+	if delims, ok := env["DELIM"]; ok {
+		if delimEnd, ok := env["DELIM_END"]; ok {
+			t = t.Delims(delims, delimEnd)
+		} else {
+			t = t.Delims(delims, delims)
+		}
+	}
+
+	t, err := t.ParseFiles(fileName)
 	if err != nil {
 		return err
 	}
