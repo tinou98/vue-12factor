@@ -1,12 +1,12 @@
 package main
 
 import (
-	"text/template"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"text/template"
 )
 
 type fallback struct {
@@ -15,12 +15,12 @@ type fallback struct {
 }
 
 func (fb fallback) Open(path string) (http.File, error) {
-	f, err := fb.fs.Open(path + ".tpl")
+	f, err := fb.fs.Open("tpl." + path)
 	if os.IsNotExist(err) {
 		f, err := fb.fs.Open(path)
 		if os.IsNotExist(err) {
 			log.Printf("Serving %s instead of %s: %v", fb.defaultPath, path, err)
-			return fb.fs.Open(fb.defaultPath)
+			return fb.Open(fb.defaultPath)
 		}
 		log.Printf("Serving %s", path)
 		return f, err
@@ -91,7 +91,7 @@ func InjectEnv(fileName string) error {
 		return err
 	}
 
-	file, err := os.Create(fileName + ".tpl")
+	file, err := os.Create("tpl." + fileName)
 	if err != nil {
 		return err
 	}
