@@ -15,17 +15,12 @@ type fallback struct {
 }
 
 func (fb fallback) Open(path string) (http.File, error) {
-	f, err := fb.fs.Open("tpl." + path)
+	f, err := fb.fs.Open(path)
 	if os.IsNotExist(err) {
-		f, err := fb.fs.Open(path)
-		if os.IsNotExist(err) {
-			log.Printf("Serving %s instead of %s: %v", fb.defaultPath, path, err)
-			return fb.Open(fb.defaultPath)
-		}
-		log.Printf("Serving %s", path)
-		return f, err
+		log.Printf("Serving %s instead of %s: %v", fb.defaultPath, path, err)
+		return fb.fs.Open(fb.defaultPath)
 	}
-	log.Printf("Serving templated %s", path)
+	log.Printf("Serving %s", path)
 	return f, err
 }
 
@@ -77,7 +72,7 @@ func AutoInjection(files ...string) {
 func InjectEnv(fileName string) error {
 	env := readEnv()
 
-	t := template.New(fileName)
+	t := template.New(filepath.Base(fileName))
 	if delims, ok := env["DELIM"]; ok {
 		if delimEnd, ok := env["DELIM_END"]; ok {
 			t = t.Delims(delims, delimEnd)
@@ -91,10 +86,11 @@ func InjectEnv(fileName string) error {
 		return err
 	}
 
-	file, err := os.Create("tpl." + fileName)
+	file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_TRUNC, 0777)
 	if err != nil {
 		return err
 	}
+	file.Truncate(0)
 
 	return t.Execute(file, env)
 }
